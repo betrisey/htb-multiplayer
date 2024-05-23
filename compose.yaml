@@ -1,0 +1,31 @@
+services:
+  sliver:
+    build: .
+    platform: linux/amd64
+    restart: unless-stopped
+    volumes:
+      - ./sliver-data:/home/sliver/.sliver
+      - ./tailscale-data:/var/lib/tailscale
+      - ./pro_labs.ovpn:/pro_labs.ovpn
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - net_admin
+    depends_on:
+      - tailscale
+    network_mode: service:tailscale
+
+  tailscale:
+    image: tailscale/tailscale:latest
+    hostname: htb
+    environment:
+      - TS_AUTHKEY=${TS_AUTHKEY}
+      - TS_EXTRA_ARGS=--advertise-routes=${HTB_SUBNET}
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_USERSPACE=false
+    volumes:
+      - ${PWD}/tailscale-data/state:/var/lib/tailscale
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - net_admin
+      - sys_module
+    restart: unless-stopped

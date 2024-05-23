@@ -1,0 +1,5 @@
+sliver-data
+tailscale-data
+.DS_Store
+.env
+*.ovpn
