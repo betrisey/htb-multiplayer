@@ -1,5 +1,4 @@
-sliver-data
-tailscale-data
+data
 .DS_Store
 .env
 *.ovpn

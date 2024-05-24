@@ -4,15 +4,23 @@ services:
     platform: linux/amd64
     restart: unless-stopped
     volumes:
-      - ./sliver-data:/home/sliver/.sliver
-      - ./tailscale-data:/var/lib/tailscale
+      - ./data/workspace:/workspace
+      - ./data/ssh:/root/.ssh
+      - ./data/sliver:/root/.sliver
+      - ./data/tailscale:/var/lib/tailscale
       - ./pro_labs.ovpn:/pro_labs.ovpn
       - /dev/net/tun:/dev/net/tun
+
+    # for dev
+      - ./web:/web:ro
     cap_add:
       - net_admin
     depends_on:
       - tailscale
     network_mode: service:tailscale
+    environment:
+      - ROOT_PASSWORD=${ROOT_PASSWORD}
+      - HTB_SUBNET=${HTB_SUBNET}
 
   tailscale:
     image: tailscale/tailscale:latest
@@ -23,7 +31,7 @@ services:
       - TS_STATE_DIR=/var/lib/tailscale
       - TS_USERSPACE=false
     volumes:
-      - ${PWD}/tailscale-data/state:/var/lib/tailscale
+      - ${PWD}/data/tailscale/state:/var/lib/tailscale
       - /dev/net/tun:/dev/net/tun
     cap_add:
       - net_admin

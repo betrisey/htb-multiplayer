@@ -25,15 +25,20 @@ RUN mkdir -p ~/.msf4/ && touch ~/.msf4/initial_setup_complete
 
 ### Copy compiled binary
 USER root
-RUN curl -o /opt/sliver-server -L https://github.com/BishopFox/sliver/releases/download/v1.5.42/sliver-server_linux && chmod +x /opt/sliver-server
+RUN curl -o /opt/sliver-server -L https://github.com/BishopFox/sliver/releases/latest/download/sliver-server_linux && chmod +x /opt/sliver-server
 
-RUN apt-get install -y openvpn
+RUN apt-get install -y openvpn ssh iproute2 python3 python3-pip socat lsof
+RUN mkdir /run/sshd
+RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
 
 ### Unpack Sliver:
 RUN /opt/sliver-server unpack --force
 
-COPY --chown=sliver:sliver ./run.sh /root/
+COPY ./run.sh /root/
 RUN chmod +x /root/run.sh
+
+RUN pip3 install --break-system-packages Flask==3.0.3 sshpubkeys==3.3.1
+# RUN COPY ./web /web
 
 WORKDIR /root/
 VOLUME [ "/root/.sliver" ]

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTB Multiplayer</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">HTB Multiplayer</h1>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="alert alert-info">
+                    <ul class="list-unstyled mb-0">
+                        {% for message in messages %}
+                            <li>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <h2>Info</h2>
+        <div class="mb-4">
+            <p>HTB subnet: <code>{{HTB_SUBNET}}</code></p>
+            <p>Jump server: <code id="jump_server"></code></p>
+        </div>
+
+        <h2>Create User</h2>
+        <form action="/create-user" method="post" enctype="multipart/form-data" id="create-user" class="mb-5">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" class="form-control" pattern="^[a-zA-Z0-9]+$" required>
+            </div>
+            <div class="form-group">
+                <label for="ssh_key">SSH public key</label>
+                <input type="file" id="ssh_key" name="ssh_key" class="form-control-file" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Create user</button>
+        </form>
+
+        <h2>Port Forwarding</h2>
+        <form action="/port-forward" method="post" class="mb-5">
+            <div class="form-group">
+                <label for="destination_port">Your local port</label>
+                <input type="number" id="destination_port" name="destination_port" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="source_port">Listening port</label>
+                <input type="number" id="source_port" name="source_port" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Forward port</button>
+        </form>
+
+        <h2>Active Port Forwards</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Listening port</th>
+                    <th>Destination</th>
+                    <th>Stop</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for listening_port, data in FORWARDING.items() %}
+                    <tr>
+                        <td>{{listening_port}}</td>
+                        <td>{{data.destination_ip}}:{{data.destination_port}}</td>
+                        <td>
+                            <form action="/stop-port-forward" method="post">
+                                <input type="hidden" name="listening_port" value="{{listening_port}}">
+                                <button type="submit" class="btn btn-danger btn-sm">Stop</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script>
+        document.getElementById("jump_server").innerText = "ssh root@" + location.hostname;
+        document.getElementById("create-user").onsubmit = function() {
+            setTimeout(function() {
+                location.reload();
+            }, 500);
+        }
+    </script>
+</body>
+</html>
