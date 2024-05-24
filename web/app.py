@@ -37,9 +37,7 @@ def create():
         flash("invalid SSH public key: " + str(e), "error")
     
     operator_cfg_file = tempfile.mktemp()
-    #os.system(f"/opt/sliver-server operator --lhost {request.host} --name {username} -s {operator_cfg_file}")
-    # prevent command injection
-    subprocess.run(["/opt/sliver-server", "operator", "--lhost", request.host, "--name", username, "-s", operator_cfg_file], check=True)
+    subprocess.run(["/opt/sliver-server", "operator", "--lhost", request.host.split(":")[0], "--name", username, "-s", operator_cfg_file], check=True)
 
     flash("SSH key added, operator created", "success")
     
